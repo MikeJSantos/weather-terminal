@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 @unique
 class ForecastType(Enum):
-    TODAY = 'today'
+    TODAY    = 'today'
     FIVEDAYS = '5day'
-    TENDAYS = '10day'
-    WEEKEND = 'weekend'
+    TENDAYS  = '10day'
+    WEEKEND  = 'weekend'

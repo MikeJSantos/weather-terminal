@@ -17,6 +17,7 @@ argparser = ArgumentParser(
 )
 
 required = argparser.add_argument_group('required arguments')
+
 required.add_argument(
     '-p',
     '--parser',
@@ -26,29 +27,11 @@ required.add_argument(
     help     = ('Specify which parser is going to be used to scrape weather information')
 )
 
-unit_values = [name.title() for name, value in Unit.__members__.items()]
-argparser.add_argument(
-    '-u',
-    '--unit',
-    choices  = unit_values,
-    required = False,
-    dest     = 'unit',
-    help     = ('Specify the unit that will be used to display the temperatures.')
-)
-
-# TODO: group required args together?
 required.add_argument(
     '-a',
     '--areacode',
     dest = 'area_code',
     help = ('The code area to get the weather broadcast from. It can be obtained at https://weather.com')
-)
-
-argparser.add_argument(
-    '-v',
-    '--version',
-    aciton  = 'version',
-    version = '%(prog)s 1.0'
 )
 
 argparser.add_argument(
@@ -60,14 +43,22 @@ argparser.add_argument(
     help   = 'Show the weater forecast for the current day'
 )
 
-required.add_argument(
+unit_values = [name.title() for name, value in Unit.__members__.items()]
+argparser.add_argument(
     '-u',
     '--unit',
     choices  = unit_values,
     required = False,
     action   = SetUnitAction,
     dest     = 'unit',
-    help     = ('SPecify the unit that will be used to display the temperatures.')
+    help     = ('Specify the unit that will be used to display the temperatures.')
+)
+
+argparser.add_argument(
+    '-v',
+    '--version',
+    action  = 'version',
+    version = '%(prog)s 1.0'
 )
 
 args = argparser.parse_args()

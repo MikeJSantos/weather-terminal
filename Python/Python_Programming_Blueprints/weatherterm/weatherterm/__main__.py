@@ -1,8 +1,6 @@
 import sys
 from argparse import ArgumentParser
-from weatherterm.core import parser_loader
-from weatherterm.core import ForecastType
-from weatherterm.core import Unit
+from weatherterm.core import parser_loader, ForecastType, Unit, SetUnitAction
 
 def _validate_forecast_args(args):
     if args.forecast_option is None:
@@ -60,6 +58,16 @@ argparser.add_argument(
     action = 'store_const',
     const  = ForecastType.TODAY,
     help   = 'Show the weater forecast for the current day'
+)
+
+required.add_argument(
+    '-u',
+    '--unit',
+    choices  = unit_values,
+    required = False,
+    action   = SetUnitAction,
+    dest     = 'unit',
+    help     = ('SPecify the unit that will be used to display the temperatures.')
 )
 
 args = argparser.parse_args()

@@ -4,10 +4,10 @@ from weatherterm.core import parser_loader, ForecastType, Unit, SetUnitAction
 
 def _validate_forecast_args(args):
     if args.forecast_option is None:
-        err_msg = ('One of these arguments must be used: '
-                   '-td/--today, -5d/--fivedays, -10d/--tendays, -w/--weekend')
-        print(f'{argparser.prog}: error: {err_msg}', file = sys.stderr)
-        sys.exit()
+        print('Forecasting option not specified. Defaulting to today\'s forecast')
+        args.forecast_option = ForecastType.TODAY
+
+    # TODO: add default unit specification & parser?
         
 parsers = parser_loader.load('./weatherterm/parsers')
 
@@ -24,14 +24,25 @@ required.add_argument(
     choices  = parsers.keys(),
     required = True,
     dest     = 'parser',
-    help     = ('Specify which parser is going to be used to scrape weather information')
+    help     = 'Specify which parser is going to be used to scrape weather information'
 )
 
 required.add_argument(
     '-a',
     '--areacode',
     dest = 'area_code',
-    help = ('The code area to get the weather broadcast from. It can be obtained at https://weather.com')
+    help = 'The code area to get the weather broadcast from. It can be obtained at https://weather.com'
+)
+
+unit_values = [name.title() for name, value in Unit.__members__.items()]
+argparser.add_argument(
+    '-u',
+    '--unit',
+    choices  = unit_values,
+    required = False,
+    action   = SetUnitAction,
+    dest     = 'unit',
+    help     = 'Specify the unit that will be used to display the temperatures.'
 )
 
 argparser.add_argument(
@@ -43,15 +54,22 @@ argparser.add_argument(
     help   = 'Show the weater forecast for the current day'
 )
 
-unit_values = [name.title() for name, value in Unit.__members__.items()]
 argparser.add_argument(
-    '-u',
-    '--unit',
-    choices  = unit_values,
-    required = False,
-    action   = SetUnitAction,
-    dest     = 'unit',
-    help     = ('Specify the unit that will be used to display the temperatures.')
+    '-5d',
+    '--fivedays',
+    dest   = 'forecast_option',
+    action = 'store_const',
+    const  = ForecastType.FIVEDAYS,
+    help   = 'Shows the weather forecast for the next 5 days'
+)
+
+argparser.add_argument(
+    '-10d',
+    '--tendays',
+    dest   = 'forecast_option',
+    action = 'store_const',
+    const  = ForecastType.TENDAYS,
+    help   = 'Shows the weather forecast for the next 10 days'
 )
 
 argparser.add_argument(

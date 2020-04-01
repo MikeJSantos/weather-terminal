@@ -73,6 +73,15 @@ argparser.add_argument(
 )
 
 argparser.add_argument(
+    '-w',
+    '--weekend',
+    dest   = 'forecast_option',
+    action = 'store_const',
+    const  = ForecastType.WEEKEND,
+    help   = 'Shows the weather forecast for the next or current weekend'
+)
+
+argparser.add_argument(
     '-v',
     '--version',
     action  = 'version',

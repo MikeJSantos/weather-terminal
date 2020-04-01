@@ -11,10 +11,10 @@ class WeatherComParser:
             ForecastType.WEEKEND: self._weekend_forecast
         }
 
-        self._base_url = 'http://weather.com/weather/{forecast}/1/{area}'
+        self._base_url = 'http://weather.com/weather/{forecast}/l/{area}'
         self._request = Request(self._base_url)
 
-        self._temp_regex = re.compile('([0-9]+)\D{,2}([0-9]+)')
+        self._temp_regex = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
         self._only_digits_regex = re.compile('[0-9]+')
         
         self._unit_converter = UnitConverter(Unit.FAHRENHEIT)
@@ -32,7 +32,9 @@ class WeatherComParser:
         )
 
         bs = BeautifulSoup(content, 'html.parser')
+
         container = bs.find('section', class_ = 'today_nowcard-container')
+        
         weather_conditions = self._parse(container, criteria)
 
         if len(weather_conditions) < 1:
@@ -40,7 +42,7 @@ class WeatherComParser:
 
         weatherinfo = weather_conditions[0]
         
-        temp_regex = re.compile (('H\s+(\d+|\-{,2}).+L\s+(\d+|\-{,2})'))
+        temp_regex = re.compile (r'H\s+(\d+|\-{,2}).+L\s+(\d+|\-{,2})')
         
         temp_info = temp_regex.search(weatherinfo['today_nowcard-hilo'])
 
@@ -48,11 +50,11 @@ class WeatherComParser:
 
         side = container.find('div', class_ = 'today_nowcard-sidecar')
 
-        humidity, wind = self._get_additional_info(side)
+        wind, humidity = self._get_additional_info(side)
 
         curr_temp = self._clear_str_number(weatherinfo['today_nowcard-temp'])
 
-        self._unit_converter.dest_unit = args.Unit
+        self._unit_converter.dest_unit = args.unit
 
         td_forecast = Forecast(
             self._unit_converter.convert(curr_temp),

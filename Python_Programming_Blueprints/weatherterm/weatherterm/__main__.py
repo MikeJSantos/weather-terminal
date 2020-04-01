@@ -70,4 +70,4 @@ parser = cls()
 results = parser.run(args)
 
 for result in results:
-    print(results)
+    print(str(result))

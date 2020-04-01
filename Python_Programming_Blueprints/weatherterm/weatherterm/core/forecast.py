@@ -57,13 +57,11 @@ class Forecast:
         if self._forecast_type == ForecastType.TODAY:
             temperature = (f'{offset}{self._current_temp}\xb0\n'
                            f'{offset}High {self._high_temp}\xb0 / '
-                           f'Low {self._low_temp}\xb0 ')
+                           f'Low {self._low_temp}\xb0')
         else:
             temperature = (f'{offset}High {self._high_temp}\xb0 / '
-                           f'Low {self._low_temp}\xb0 ')
+                           f'Low {self._low_temp}\xb0')
         
-        return(f'>> {self.forecast_date}\n'
-               f'{temperature}'
-               f'({self._description})\n'
-               f'{offset}Wind: '
-               f'{self._wind} / Humidity: {self._humidity}\n')
+        return(f'>>  {self.forecast_date}\n'
+               f'{temperature} ({self._description})\n'
+               f'{offset}Wind: {self._wind} / Humidity: {self._humidity}\n')

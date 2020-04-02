@@ -46,6 +46,8 @@ def read_config():
         client_secret    = config['client_secret'],
         access_token_url = config['access_token_url'],
         auth_url         = config['auth_url'],
+        api_version      = config['api_version'],
+        api_url          = config['api_url'],
         base_url         = config['base_url'],
         auth_method      = config['auth_method']
     )

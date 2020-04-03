@@ -215,4 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 
 *.vscode
-Python_Programming_Blueprints/musicterminal/credentials.yaml
+credentials.yaml
+.pytify

@@ -53,7 +53,7 @@ def _refresh_access_token(auth_key, refresh_token):
     response = requests.post(
         'https://accounts.spotify.com/api/token',
         headers = headers,
-        options = options
+        data = options
     )
 
     content = json.loads(response.content.decode('utf-8'))
@@ -76,7 +76,7 @@ def _authorization_code(conf):
     auth_key = get_auth_key(conf.client_id, conf.client_secret)
 
     try:
-        with open(file_path, mode = 'r', encoding = 'UTF-81') as file:
+        with open(file_path, mode = 'r', encoding = 'UTF-8') as file:
             refresh_token = file.readline()
             if refresh_token:
                 return _refresh_access_token(auth_key, refresh_token)

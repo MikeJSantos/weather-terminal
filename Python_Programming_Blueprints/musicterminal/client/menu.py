@@ -69,7 +69,7 @@ class Menu(Panel):
         pos_x = 2
         pos_y = 2
 
-        for item in self.items:
+        for item in self.items: # TODO: Add window height check (i.e. 20 items, but height only 13 causes crash)
             self._win.addstr(
                 pos_y,
                 pos_x,

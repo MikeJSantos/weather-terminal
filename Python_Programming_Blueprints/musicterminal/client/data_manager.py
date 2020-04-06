@@ -1,5 +1,4 @@
-from .menu_item import MenuItem
-from .empty_results_error import EmptyResultsError
+from client import MenuItem, EmptyResultsError
 from pytify.core import search_artist, get_artist_albums
 from pytify.core import get_album_tracks, play, read_config
 from pytify.auth import authenticate

@@ -1,6 +1,5 @@
 import unicurses as curses
-from .alignment import Alignment
-from .panel import Panel
+from client import Alignment, Panel
 
 NEW_LINE = 10
 CARRIAGE_RETURN = 13

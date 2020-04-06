@@ -2,7 +2,8 @@ import unicurses as curses
 from client import Alignment, Panel
 
 NEW_LINE = 10
-CARRIAGE_RETURN = 13
+KEY_UP   = 450
+KEY_DOWN = 456
 
 class Menu(Panel):
     def __init__(self, title, dimensions, align = Alignment.LEFT, items = []):
@@ -52,13 +53,11 @@ class Menu(Panel):
         self._initialize_items()
 
     def handle_events(self, key):
-        if key == curses.KEY_UP:
+        if key == KEY_UP:
             self.previous()
-        elif key == curses.KEY_DOWN:
+        elif key == KEY_DOWN:
             self.next()
-        elif (key == curses.KEY_ENTER 
-           or key == NEW_LINE
-           or key == CARRIAGE_RETURN):
+        elif key == NEW_LINE:
             selected_item = self.get_selected()
             return selected_item.action
 

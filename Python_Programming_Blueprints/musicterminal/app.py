@@ -4,9 +4,11 @@ from curses.textpad import Textbox, rectangle
 from client.menu import Menu
 from client.data_manager import DataManager
 
+TAB = 9
+
 def show_search_screen(stdscr):
     curses.curs_set(1)
-    stdscr.addstr(1, 2, 'Artist name: (Ctrl-G to search)')
+    stdscr.addstr(1, 2, 'Artist name: (Enter to search)')
 
     editwin = curses.newwin(1, 40, 3, 3)
     rectangle(stdscr, 2, 2, 4, 44)
@@ -28,13 +30,14 @@ def main(stdscr):
     stdscr.keypad(True)
     height, width = stdscr.getmaxyx()
 
+    suffix_text = ' (TAB to search by artist)'
     albums_panel = Menu(
-        'List of albums for the selected artist',
+        'Album(s) for the selected artist' + suffix_text,
         (height, width, 0, 0)
     )
 
     tracks_panel = Menu(
-        'List of tracks for the selected album',
+        'Track(s) for the selected album' + suffix_text,
         (height, width, 0, 0)
     )
 
@@ -55,7 +58,6 @@ def main(stdscr):
 
     while is_running:
         curses.doupdate()
-        # curses.update_panels()
         current_panel.update()
 
         key = stdscr.getch()
@@ -75,7 +77,7 @@ def main(stdscr):
                 _id, uri = action_result
                 _data_manager.play(uri)
 
-        if key == curses.KEY_STAB: # KEY_F2 not available
+        if key == TAB:
             current_panel.hide()
             criteria = show_search_screen(stdscr)
             artist = _data_manager._search_artist(criteria)

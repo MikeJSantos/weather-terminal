@@ -1,6 +1,6 @@
 from client import MenuItem, EmptyResultsError
-from pytify.core import search_artist, get_artist_albums
-from pytify.core import get_album_tracks, play, read_config
+from pytify.core import read_config, search_artist, get_artist_albums
+from pytify.core import get_album_tracks, play, BadRequestError
 from pytify.auth import authenticate
 
 class DataManager():
@@ -18,7 +18,7 @@ class DataManager():
         return items[0]
 
     def _format_artist_label(self, item):
-        return f'{item["name"]} ({item["type"]})'
+        return f'{item["name"]}' # removed redundant (album) suffix
 
     def _format_track_label(self, item):
         time    = int(item['duration_ms'])
@@ -43,7 +43,7 @@ class DataManager():
         ]
     
     def get_album_tracklist(self, album_id):
-        results = get_artist_albums(album_id, self._authentication)
+        results = get_album_tracks(album_id, self._authentication)
 
         if not results:
             raise EmptyResultsError(f'Could not find track(s) for album_id: {album_id}')
@@ -56,4 +56,9 @@ class DataManager():
         ]
 
     def play(self, track_uri):
-        play(track_uri, self._authentication)
+        try:
+            play(track_uri, self._authentication)
+        except BadRequestError:
+            print('Playback failed. Do you have Spotify Premium?')
+            # TODO: Update panel with this message ^
+        

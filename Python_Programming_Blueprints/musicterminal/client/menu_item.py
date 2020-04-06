@@ -1,7 +1,7 @@
 from uuid import uuid1
 
 class MenuItem:
-    def __init_(self, label, data, selected = False):
+    def __init__(self, label, data, selected = False):
         self.id = str(uuid1())
         self.data = data
         self.label = label

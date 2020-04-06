@@ -215,3 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 
 *.vscode
+credentials.yaml
+.pytify

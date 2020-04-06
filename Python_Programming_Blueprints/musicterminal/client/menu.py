@@ -77,5 +77,6 @@ class Menu(Panel):
                 item.label,
                 curses.A_REVERSE if item.selected else curses.A_NORMAL
             )
+            pos_y += 1
         
         self._win.refresh()

@@ -1,6 +1,6 @@
 # Weather Terminal
 
-**Note:** This application no longer works due to weather.com URL format changes from 'http://weather.com/weather/{forecast_option}/l/{area_code}' to 'https://weather.com/weather/today/l/{id}', where id is a 64 character alphanumeric.
+**Note:** This application no longer works due to weather.com URL format changes from 'http://weather.com/weather/{forecast_option}/l/{area_code}' to 'https://weather.com/weather/{forecast_option}/l/{id}', where id is a 64 character alphanumeric.
 
 This is a Python console application that scrapes weather forecast info from http://www.weather.com, using BeautifulSoup for HTML parsing & PhantomJS (included with Selenium) to drive the HTTP request.
 

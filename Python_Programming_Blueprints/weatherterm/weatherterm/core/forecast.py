@@ -21,10 +21,7 @@ class Forecast:
         self._description   = description
         self._forecast_type = forecast_type
 
-        if forecast_date is None:
-            self.forecast_date = date.today() # self.forecast a typo?
-        else: 
-            self._forecast_date = forecast_date
+        self.forecast_date = date.today() if forecast_date is None else forecast_date
 
     @property
     def forecast_date(self):
@@ -54,6 +51,7 @@ class Forecast:
         temperature = None
         offset = ' ' * 4
 
+        # TODO: replace private field reference with property getters?
         if self._forecast_type == ForecastType.TODAY:
             temperature = (f'{offset}{self._current_temp}\xb0\n'
                            f'{offset}High {self._high_temp}\xb0 / '

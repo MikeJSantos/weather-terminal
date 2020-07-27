@@ -2,41 +2,46 @@ import os
 import re
 import inspect
 
-def _get_parser_list(dirname):
+def _get_parser_list(dirName):
+    # Returns all Python modules that don't have a '__' prefix 
+    # in the given directory. File extensions are stripped
     files = [
         f.replace('.py', '')
-        for f in os.listdir(dirname)
+        for f in os.listdir(dirName)
         if not f.startswith('__')
     ]
     return files
 
-def _import_parsers(parserfiles):
-    m = re.compile('.+parser$', re.I)
-    
+def _import_parsers(parserFiles):
+    # Returns a parser dictionary <name, class object>. The method imports parserFiles
+    # verifies that they're modules and filters on modules ending in 'parser'
     _modules = __import__(
         'weatherterm.parsers',
         globals(),
         locals(),
-        parserfiles,
+        parserFiles,
         0
     )
 
+    regEx = re.compile('.+parser$', re.I)
+
     _parsers = [
-        (k, v) for k, v in inspect.getmembers(_modules)
-        if inspect.ismodule(v) and m.match(k)
+        (key, value) for key, value in inspect.getmembers(_modules)
+        if inspect.ismodule(value) and regEx.match(key)
     ]
 
-    _classes = dict()
+    _parserDictionary = dict()
 
-    for k, v in _parsers:
-        _classes.update({
-            k: v for k, v in inspect.getmembers(v)
-            if inspect.isclass(v) and m.match(k)
+    for key, value in _parsers:
+        _parserDictionary.update({
+            key: value for key, value in inspect.getmembers(value)
+            if inspect.isclass(value) and regEx.match(key)
         })
 
-    return _classes
+    return _parserDictionary
 
-def load(dirname):
-    parserfiles = _get_parser_list(dirname)
+def load(dirName):
+    # Main method. Builds & imports all parsers in the given directory ('weatherterm/parsers')
+    parserfiles = _get_parser_list(dirName)
     return _import_parsers(parserfiles)
 

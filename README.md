@@ -6,18 +6,22 @@ Based on [Python Programming Blueprints](https://www.packtpub.com/application-de
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install dependencies.
 
 ```bash
-pip install foobar
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-```python
-import foobar
 
-foobar.pluralize('word') # returns 'words'
-foobar.pluralize('goose') # returns 'geese'
-foobar.singularize('phenomena') # returns 'phenomenon'
+```python
+# Get today's forecast
+python -m weatherterm -p WeatherComParser -a {area_code} 
+# 5-day
+python -m weatherterm -p WeatherComParser -a {area_code} -5d
+# 10-day
+python -m weatherterm -p WeatherComParser -a {area_code} -10d
+# Weekend
+python -m weatherterm -p WeatherComParser -a {area_code} -w
 ```

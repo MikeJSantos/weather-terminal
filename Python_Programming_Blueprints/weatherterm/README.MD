@@ -2,6 +2,8 @@
 
 This is a console application, written in Python, that scrapes weather forecast info from http://www.weather.com, using BeautifulSoup for HTML parsing & Selenium to drive the HTTP request.
 
+Based on [Python Programming Blueprints](https://www.packtpub.com/application-development/python-programming-blueprints).
+
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.

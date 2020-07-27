@@ -6,11 +6,18 @@ Based on [Python Programming Blueprints](https://www.packtpub.com/application-de
 
 ## Installation
 
+Create & activate a virtual environment
 ```bash
-# Create a virtual environment?
-# Use [pip](https://pip.pypa.io/en/stable/) to install dependencies.
+py -m venv .venv
+./.venv/Scripts/activate.bat
+```
+
+Use [pip](https://pip.pypa.io/en/stable/) to install dependencies.
+```bash
 pip install -r requirements.txt
 ```
+
+Download PhantomJS & extract the executable to /phantomjs/bin
 
 ## Usage
 

@@ -6,22 +6,21 @@ Based on [Python Programming Blueprints](https://www.packtpub.com/application-de
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install dependencies.
-
 ```bash
+# Create a virtual environment?
+# Use [pip](https://pip.pypa.io/en/stable/) to install dependencies.
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-
 ```python
 # Get today's forecast
-python -m weatherterm -p WeatherComParser -a {area_code} 
+py -m weatherterm -p WeatherComParser -a {area_code} 
 # 5-day
-python -m weatherterm -p WeatherComParser -a {area_code} -5d
+py -m weatherterm -p WeatherComParser -a {area_code} -5d
 # 10-day
-python -m weatherterm -p WeatherComParser -a {area_code} -10d
+py -m weatherterm -p WeatherComParser -a {area_code} -10d
 # Weekend
-python -m weatherterm -p WeatherComParser -a {area_code} -w
+py -m weatherterm -p WeatherComParser -a {area_code} -w
 ```

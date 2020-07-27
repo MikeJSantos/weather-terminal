@@ -1,21 +1,22 @@
 from .unit import Unit
 
 class UnitConverter:
-    def __init__(self, parser_default_unit, dest_unit = None):
+    # Converts temperature units between Celsius & Fahrenheit
+    def __init__(self, parser_default_unit, destination_unit = None):
         self._parser_default_unit = parser_default_unit
-        self._dest_unit = dest_unit
+        self._destination_unit = destination_unit
         self._convert_functions = {
             Unit.CELSIUS: self._to_celsius,
             Unit.FAHRENHEIT: self._to_fahrenheit
         }
     
     @property
-    def dest_unit(self):
-        return self._dest_unit
+    def destination_unit(self):
+        return self._destination_unit
 
-    @dest_unit.setter
-    def dest_unit(self, dest_unit):
-        self._dest_unit = dest_unit
+    @destination_unit.setter
+    def destination_unit(self, destination_unit):
+        self._destination_unit = destination_unit
     
     def convert(self, temp):
         try:
@@ -23,10 +24,10 @@ class UnitConverter:
         except ValueError:
             return 0
         
-        if (self.dest_unit == self._parser_default_unit or self.dest_unit is None):
+        if (self.destination_unit == self._parser_default_unit or self.destination_unit is None):
             return self._format_results(temperature)
         
-        func = self._convert_functions[self.dest_unit]
+        func = self._convert_functions[self.destination_unit]
         result = func(temperature)
         
         return self._format_results(result)

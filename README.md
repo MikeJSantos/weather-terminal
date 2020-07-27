@@ -8,11 +8,11 @@ Based on [Python Programming Blueprints](https://www.packtpub.com/application-de
 
 Create & activate a virtual environment
 ```bash
-py -m venv .venv
-./.venv/Scripts/activate.bat
+py -m venv env
+./env/Scripts/activate.bat
 ```
 
-Use [pip](https://pip.pypa.io/en/stable/) to install dependencies.
+Install [pip](https://pip.pypa.io/en/stable/) dependencies.
 ```bash
 pip install -r requirements.txt
 ```

@@ -19,6 +19,8 @@ class UnitConverter:
         self._destination_unit = destination_unit
     
     def convert(self, temp):
+        # parse temp to a float, determine if destination_unit is different than
+        # default unit and perform necessary convresions, then return formatted result
         try:
             temperature = float(temp)
         except ValueError:

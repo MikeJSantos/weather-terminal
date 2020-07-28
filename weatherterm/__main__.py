@@ -7,14 +7,12 @@ parsers = parser_loader.load('./weatherterm/parsers')
 def _validate_forecast_args(args):
     # Defines default command line arguments, if they aren't supplied
     if args.forecast_option is None:
-        print('Forecasting option not specified. Defaulting to today\'s forecast')
         args.forecast_option = ForecastType.TODAY
+        print(f'Forecasting option not specified. Defaulting to {args.forecast_option}')
 
     if args.parser is None:
-        print('Weather parser not specified. Defaulting to WeatherComParser')
-        args.parser = next(iter(parsers.values()))
-
-    # TODO: add default unit specification?
+        args.parser = next(iter(parsers))
+        print(f'Weather parser not specified. Defaulting to {args.parser}')
 
 # Construct the arguments parser
 argparser = ArgumentParser(
@@ -38,7 +36,7 @@ argparser.add_argument(
     '-p',
     '--parser',
     choices  = parsers.keys(),
-    required = True,
+    required = False,
     dest     = 'parser',
     help     = 'Specify which parser is going to be used to scrape weather information'
 )

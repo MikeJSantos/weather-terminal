@@ -1,6 +1,6 @@
 # Weather Terminal
 
-This is a Python console application that scrapes weather forecast info from http://www.weather.com, using BeautifulSoup for HTML parsing & PhantomJS (included with Selenium) to drive the HTTP request.
+This is a Python console application that scrapes weather forecast info from http://www.weather.com, using BeautifulSoup for HTML parsing & Selenium/PhantomJS to make the HTTP request.
 
 Based on [Python Programming Blueprints](https://www.packtpub.com/application-development/python-programming-blueprints).
 

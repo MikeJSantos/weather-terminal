@@ -1,6 +1,7 @@
 import sys
 from argparse import ArgumentParser
-from weatherterm.core import parser_loader, ForecastType, Unit, SetUnitAction
+from weatherterm.core import parser_loader, SetUnitAction
+from weatherterm.core.enum import ForecastType, Unit
 
 parsers = parser_loader.load('./weatherterm/parsers')
 

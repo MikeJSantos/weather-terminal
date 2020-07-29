@@ -1,6 +1,7 @@
 import re
 from bs4 import BeautifulSoup
-from weatherterm.core import Forecast, ForecastType, Mapper, Request, Unit, UnitConverter
+from weatherterm.core import Forecast, Mapper, Request, UnitConverter
+from weatherterm.core.enum import ForecastType, Unit
 
 class WeatherComParser:
     def __init__(self):
@@ -10,10 +11,7 @@ class WeatherComParser:
             ForecastType.TENDAYS: self._five_and_ten_days_forecast,
             ForecastType.WEEKEND: self._weekend_forecast
         }
-        self._base_url          = 'http://weather.com/weather/{forecast_option}/l/{area_code}'
-        self._request           = Request(self._base_url)
-        self._temp_regex        = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
-        self._only_digits_regex = re.compile('[0-9]+')
+        self._request           = Request('http://weather.com/weather/{forecast_option}/l/{area_code}')
         self._unit_converter    = UnitConverter(Unit.FAHRENHEIT)
 
     def run(self, args):
@@ -63,15 +61,21 @@ class WeatherComParser:
         return [td_forecast]
 
     def _five_and_ten_days_forecast(self, args):
+        # TODO: replace when done debugging
         content = self._request.fetch_data(
             args.forecast_option.value,
             args.area_code
         )
+        with open("5day.html", "w", encoding = "utf-8") as f:
+            f.write(content)
+
         results = self._parse_list_forecast(content, args)
 
         # 10 day forecast actually returns 15 days. Pare the list down
         if args.forecast_option == ForecastType.TENDAYS:
             results = results[:10]
+        if args.forecast_option == ForecastType.FIVEDAYS:
+            results = results[:5]
 
         return self._prepare_data(results, args)
 
@@ -84,10 +88,13 @@ class WeatherComParser:
             'humidity': 'p'
         }
 
-        content = self._request.fetch_data(
-            args.forecast_option.value,
-            args.area_code
-        )
+        # TODO: re-enable when done debugging
+        # content = self._request.fetch_data(
+        #     args.forecast_option.value,
+        #     args.area_code
+        # )
+        with open("weekend.html", encoding = "utf-8") as f:
+            content = f.read()
 
         bs = BeautifulSoup(content, 'html.parser')
         forecast_data = bs.find('section', class_ = 'ls-mod')
@@ -142,6 +149,7 @@ class WeatherComParser:
 
     def _clear_str_number(self, str_number):
         # Clears out non-numeric characters from str_number
+        self._only_digits_regex = re.compile('[0-9]+')
         result = self._only_digits_regex.match(str_number)
         return '--' if result is None else result.group()
 
@@ -177,6 +185,7 @@ class WeatherComParser:
         forecast_result = []
 
         self._unit_converter.dest_unit = args.unit
+        self._temp_regex = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
 
         for item in results:
             match = self._temp_regex.search(item['temp'])

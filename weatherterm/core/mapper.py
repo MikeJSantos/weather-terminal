@@ -1,4 +1,5 @@
 class Mapper:
+    # Used to remap dictionary keys (ex: wind-conditions => wind)
     def __init__(self):
         self._mapping = {}
 

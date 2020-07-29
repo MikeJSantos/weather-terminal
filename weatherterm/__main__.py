@@ -9,7 +9,7 @@ def _validate_forecast_args(args):
     # Defines default command line arguments, if they aren't supplied
     if args.forecast_option is None:
         args.forecast_option = ForecastType.TODAY
-        print(f'Forecasting option not specified. Defaulting to {args.forecast_option}')
+        print('Defaulting to today\'s forecast')
 
     if args.parser is None:
         args.parser = next(iter(parsers))

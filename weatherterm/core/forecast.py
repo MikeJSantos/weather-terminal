@@ -51,14 +51,12 @@ class Forecast:
         temperature = None
         offset = ' ' * 4
 
-        # TODO: replace private field reference with property getters?
-        if self._forecast_type == ForecastType.TODAY:
-            temperature = (f'{offset}{self._current_temp}\xb0\n'
-                           f'{offset}High {self._high_temp}\xb0 / '
-                           f'Low {self._low_temp}\xb0')
-        else:
-            temperature = (f'{offset}High {self._high_temp}\xb0 / '
-                           f'Low {self._low_temp}\xb0')
+        temperature = (f'{offset}{self._current_temp}\xb0\n'
+                       f'{offset}High {self._high_temp}\xb0 / '
+                       f'Low {self._low_temp}\xb0') \
+            if self._forecast_type == ForecastType.TODAY \
+            else (f'{offset}High {self._high_temp}\xb0 / '
+                  f'Low {self._low_temp}\xb0')
         
         return(f'>>  {self.forecast_date}\n'
                f'{temperature} ({self._description})\n'

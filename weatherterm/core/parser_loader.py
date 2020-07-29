@@ -2,6 +2,11 @@ import os
 import re
 import inspect
 
+def load(dirName):
+    # Builds & imports all parsers in the given directory ('weatherterm/parsers')
+    parserfiles = _get_parser_list(dirName)
+    return _import_parsers(parserfiles)
+
 def _get_parser_list(dirName):
     # Returns all Python modules that don't have a '__' prefix 
     # in the given directory. File extensions are stripped
@@ -39,9 +44,3 @@ def _import_parsers(parserFiles):
         })
 
     return _parserDictionary
-
-def load(dirName):
-    # Main method. Builds & imports all parsers in the given directory ('weatherterm/parsers')
-    parserfiles = _get_parser_list(dirName)
-    return _import_parsers(parserfiles)
-

@@ -1,5 +1,5 @@
 from datetime import date
-from .forecast_type import ForecastType
+from .enum.forecast_type import ForecastType
 
 class Forecast:
     def __init__(

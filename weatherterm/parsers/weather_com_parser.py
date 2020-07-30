@@ -5,48 +5,64 @@ from weatherterm.core.enum import ForecastType, Unit
 
 class WeatherComParser:
     def __init__(self):
-        self._forecast = {
-            ForecastType.TODAY: self._today_forecast,
-            ForecastType.FIVEDAYS: self._five_and_ten_days_forecast,
-            ForecastType.TENDAYS: self._five_and_ten_days_forecast,
-            ForecastType.WEEKEND: self._weekend_forecast
+        self._forecast_function_mappings = {
+            ForecastType.TODAY:    self._today_forecast,
+            ForecastType.FIVEDAYS: self._five_day_forecast,
+            ForecastType.TENDAYS:  self._ten_day_forecast,
+            ForecastType.WEEKEND:  self._weekend_forecast
         }
-        self._request           = Request('http://weather.com/weather/{forecast_option}/l/{area_code}')
-        self._unit_converter    = UnitConverter(Unit.FAHRENHEIT)
+        self._request = Request('http://weather.com/weather/{forecast_option}/l/{area_code}')
+        self._unit_converter = UnitConverter(Unit.FAHRENHEIT)
 
     def run(self, args):
         # Main method that parses weather info based on the selected forecast option
         self._forecast_type = args.forecast_option
-        forecast_function = self._forecast[args.forecast_option]
+        forecast_function = self._forecast_function_mappings[self._forecast_type]
         return forecast_function(args)
 
     def _today_forecast(self, args):
-        content = self._request.fetch_data(
-            args.forecast_option.value,
-            args.area_code
-        )
-        bs = BeautifulSoup(content, 'html.parser')
+        bs = self._make_http_request(args)
         
-        current_conditions_container = bs.find("div", {"data-testid": "CurrentConditionsContainer"})
+        container = bs.find("div", {"data-testid": "CurrentConditionsContainer"})
         criteria = [
             ('span', 'data-testid', 'TemperatureValue'),
             ('div', 'data-testid', 'wxPhrase'),
             ('div', 'class', 'tempHiLoValue')
         ]
-        weather_conditions = self._parseNew(current_conditions_container, criteria)
+        weather_conditions = self._parse(container, criteria, "tuple")
 
         if len(weather_conditions) < 1:
             raise Exception('Could not parse weather forecast for today.')
 
         weatherinfo = weather_conditions[0]
+        curr_temp = self._clear_str_number(weatherinfo['TemperatureValue'])
 
         temp_info = weatherinfo['tempHiLoValue'].split('/')
         high_temp = self._clear_str_number(temp_info[0])
         low_temp  = self._clear_str_number(temp_info[1])
 
+        # Parses the "Weather Today in {location}" card for wind & humidity
         details_container = bs.find("section", { "data-testid" : "TodaysDetailsModule"})
-        wind, humidity = self._get_additional_info(details_container)
-        curr_temp = self._clear_str_number(weatherinfo['TemperatureValue'])
+        wind     = details_container.find("span", {"data-testid":"Wind"}).get_text()
+        humidity = details_container.find("span", {"data-testid": "PercentageValue"}).get_text()
+
+        # Determine wind direction
+        wind_direction_style = details_container.find("svg", {"name": "wind-direction"})["style"]
+        degrees = re.findall(r'\d+', wind_direction_style)
+        if not degrees:
+            self._wind_direction_mappings = {
+                "0": "S",
+                "45": "SW",
+                "90": "W",
+                "135": "NW",
+                "180": "N",
+                "225": "NE",
+                "270": "E",
+                "315": "SE"
+            }
+            if degrees[0] in self._wind_direction_mappings:
+                wind = self._wind_direction_mappings[degrees[0]] + " " + wind
+
         self._unit_converter.dest_unit = args.unit
 
         td_forecast = Forecast(
@@ -60,26 +76,37 @@ class WeatherComParser:
 
         return [td_forecast]
 
-    def _five_and_ten_days_forecast(self, args):
-        # TODO: replace when done debugging
-        content = self._request.fetch_data(
-            args.forecast_option.value,
-            args.area_code
-        )
-        with open("5day.html", "w", encoding = "utf-8") as f:
-            f.write(content)
+    def _five_day_forecast(self, args):
+        bs = self._make_http_request(args)
 
-        results = self._parse_list_forecast(content, args)
-
-        # 10 day forecast actually returns 15 days. Pare the list down
-        if args.forecast_option == ForecastType.TENDAYS:
-            results = results[:10]
-        if args.forecast_option == ForecastType.FIVEDAYS:
-            results = results[:5]
+        container = bs.find('table', class_ = 'twc-table').tbody
+        criteria = {
+            'date-time': 'span',
+            'day-detail': 'span',
+            'description': 'td',
+            'temp': 'td',
+            'wind': 'td',
+            'humidity': 'td'
+        }
+        results = self._parse(container, criteria)
 
         return self._prepare_data(results, args)
 
-    def _weekend_forecast(self,args):
+    def _ten_day_forecast(self, args):
+        bs = self._make_http_request(args)
+
+        results = self._parse_list_forecast(bs, args)
+
+        # 10 day forecast actually returns 15 days. Pare the list down
+        if self._forecast_type == ForecastType.TENDAYS:
+            results = results[:10]
+
+        return self._prepare_data(results, args)
+
+    def _weekend_forecast(self, args):
+        bs = self._make_http_request(args)
+
+        container = bs.find('section', class_ = 'ls-mod').div.div
         criteria = {
             'weather-cell': 'header',
             'temp': 'p',
@@ -87,18 +114,6 @@ class WeatherComParser:
             'wind-conditions': 'p',
             'humidity': 'p'
         }
-
-        # TODO: re-enable when done debugging
-        # content = self._request.fetch_data(
-        #     args.forecast_option.value,
-        #     args.area_code
-        # )
-        with open("weekend.html", encoding = "utf-8") as f:
-            content = f.read()
-
-        bs = BeautifulSoup(content, 'html.parser')
-        forecast_data = bs.find('section', class_ = 'ls-mod')
-        container = forecast_data.div.div
         partial_results = self._parse(container, criteria)
 
         mapper = Mapper()
@@ -108,64 +123,67 @@ class WeatherComParser:
 
         return self._prepare_data(results, args)
 
+    def _make_http_request(self, args):
+        # Makes the HTTP request & returns a BeautifulSoup object
+
+        # TODO: Remove this debugger code when done
+        # filename_mappings = {
+        #     ForecastType.TODAY: "today.html",
+        #     ForecastType.FIVEDAYS: "5day.html",
+        #     ForecastType.TENDAYS: "10day.html",
+        #     ForecastType.WEEKEND: "weekend.html"
+        # }
+        # filename = filename_mappings[self._forecast_type]
+        # with open(filename, encoding = "utf-8") as f:
+        #     content = f.read()
+
+        content = self._request.fetch_data(
+            self._forecast_type.value,
+            args.area_code
+        )
+        bs = BeautifulSoup(content, 'html.parser')
+        return bs
+
+    def _parse(self, container, criteria, useTuple = None):
+        results = [self._get_data(item, criteria) for item in container.children] 
+        return [result for result in results if result]
+
     def _get_data(self, container, search_items):
+        # Called by _parse() to return a list of controls in the DOM container that match search_items
         scraped_data = {}
 
-        for key, value in search_items.items():
-            result = container.find(value, class_ = key)
-            data = None if result is None else result.get_text()
-            if data is not None:
-                scraped_data[key] = data
+        if type(search_items) is dict:
+            # dictionary (key = class name, value = HTML tag)
+            for key, value in search_items.items():
+                result = container.find(value, class_ = key)
+                data = None \
+                    if result is None \
+                    else result.get_text()
+                if data is not None:
+                    scraped_data[key] = data
+        elif type(search_items) is list and type(search_items[0]) == tuple:
+            # tuple list (HTML tag, attribute name, attribute ID)
+            for tpl in search_items:
+                result = container.find(tpl[0], {"class": re.compile(tpl[2])}) \
+                    if tpl[1] == 'class' \
+                    else container.find(tpl[0], {tpl[1]: tpl[2]})
+                data = None \
+                    if result is None \
+                    else result.get_text()
+                if data is not None:
+                    scraped_data[tpl[2]] = data
 
         return scraped_data
-
-    def _get_dataNew(self, container, search_items):
-        # Called by _parse() to return a list of controls in the DOM container that match
-        # the search_items dictionary (key = data-testid/class name, value = DOM object)
-        scraped_data = {}
-
-        for tuple in search_items:
-            result = container.find(tuple[0], {"class": re.compile(tuple[2])}) \
-                if tuple[1] == 'class' \
-                else container.find(tuple[0], {tuple[1]: tuple[2]})
-            
-            data = None if result is None else result.get_text()
-            if data is not None:
-                scraped_data[tuple[2]] = data
-
-        return scraped_data
-
-    def _parse(self, container, criteria):
-        results = [
-            self._get_data(item, criteria) for item in container.children
-        ]
-        return [result for result in results if result]
-
-    def _parseNew(self, container, criteria):
-        results = [
-            self._get_dataNew(item, criteria) for item in container.children
-        ]
-        return [result for result in results if result]
 
     def _clear_str_number(self, str_number):
         # Clears out non-numeric characters from str_number
         self._only_digits_regex = re.compile('[0-9]+')
         result = self._only_digits_regex.match(str_number)
         return '--' if result is None else result.group()
-
-    def _get_additional_info(self, content):
-        # Parses the "Weather Today in {location}"" card (TodaysDetailsModule)
-        wind = content \
-            .find("span", {"data-testid":"Wind"}) \
-            .get_text()
-        # TODO: Infer wind direction based on style transformation (Ex: 270deg = E)
-        # <svg [...] style="transform:rotate(270deg)" [...] name="wind-direction" [...]</svg>
-        humidity = content \
-            .find("span", {"data-testid": "PercentageValue"}) \
-            .get_text()
-        return (wind, humidity)
     
-    def _parse_list_forecast(self, content, args):
+    def _parse_list_forecast(self, bs, args):
+        # Only _partially_ works for 5 day
+        container = bs.find('table', class_ = 'twc-table').tbody
         criteria = {
             'date-time': 'span',
             'day-detail': 'span',
@@ -175,30 +193,29 @@ class WeatherComParser:
             'humidity': 'td'
         }
 
-        bs = BeautifulSoup(content, 'html.parser')
-        forecast_data = bs.find('table', class_ = 'twc-table')      
-        container = forecast_data.tbody
-
         return self._parse(container, criteria)
 
     def _prepare_data(self, results, args):
+        # Used by 5day/10day/weekend forecasts
         forecast_result = []
 
         self._unit_converter.dest_unit = args.unit
-        self._temp_regex = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
+        # self._temp_regex = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
 
         for item in results:
-            match = self._temp_regex.search(item['temp'])
-            if match is not None:
-                high_temp, low_temp = match.groups()
+            # match = self._temp_regex.search(item['temp'])
+            # if match is not None:
+            hilo_temp = item['temp'].split('°')
+            hilo_temp.remove('')
+            high_temp, low_temp = hilo_temp
 
-            try:
-                dateinfo              = item['weather-cell']
-                date_time, day_detail = dateinfo[:3], dateinfo[3:]
-                item['date-time']     = date_time
-                item['day-detail']    = day_detail
-            except KeyError:
-                pass
+            # try:
+            #     dateinfo              = item['weather-cell']
+            #     date_time, day_detail = dateinfo[:3], dateinfo[3:]
+            #     item['date-time']     = date_time
+            #     item['day-detail']    = day_detail
+            # except KeyError:
+            #     pass
 
             day_forecast = Forecast(
                 self._unit_converter.convert(item['temp']),

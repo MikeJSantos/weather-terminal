@@ -54,12 +54,12 @@ class Forecast:
         temperature = None
         offset = ' ' * 4
 
-        temperature = (f'{offset}{self._current_temp}\xb0\n'
-                       f'{offset}High {self._high_temp}\xb0 / '
-                       f'Low {self._low_temp}\xb0') \
+        temperature = (f'{offset}Currently: {self._current_temp}\xb0\n'
+                       f'{offset}High: {self._high_temp}\xb0 / '
+                       f'Low: {self._low_temp}\xb0') \
             if self._forecast_type == ForecastType.TODAY \
-            else (f'{offset}High {self._high_temp}\xb0 / '
-                  f'Low {self._low_temp}\xb0')
+            else (f'{offset}High: {self._high_temp}\xb0 / '
+                  f'Low: {self._low_temp}\xb0')
         
         return(f'>>  {self.forecast_date}\n'
                f'{temperature} ({self._description})\n'

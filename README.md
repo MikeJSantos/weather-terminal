@@ -11,7 +11,7 @@ Install [pip](https://pip.pypa.io/en/stable/) dependencies.
 pip install -r requirements.txt
 ```
 
-Download PhantomJS & extract the executable to /phantomjs/bin
+Download [PhantomJS](https://phantomjs.org/download.html) & extract the executable to /phantomjs/bin
 
 ## Usage
 

@@ -21,7 +21,10 @@ class Forecast:
         self._description   = description
         self._forecast_type = forecast_type
 
-        self.forecast_date = date.today() if forecast_date is None else forecast_date
+        if forecast_date is None:
+            self.forecast_date = date.today()
+        else:
+            self._forecast_date = forecast_date
 
     @property
     def forecast_date(self):

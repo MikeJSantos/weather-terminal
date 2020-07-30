@@ -203,19 +203,16 @@ class WeatherComParser:
         # self._temp_regex = re.compile(r'([0-9]+)\D{,2}([0-9]+)')
 
         for item in results:
-            # match = self._temp_regex.search(item['temp'])
-            # if match is not None:
-            hilo_temp = item['temp'].split('°')
-            hilo_temp.remove('')
-            high_temp, low_temp = hilo_temp
+            high_temp, low_temp = re.findall(r'\d+', item['temp'])
 
-            # try:
-            #     dateinfo              = item['weather-cell']
-            #     date_time, day_detail = dateinfo[:3], dateinfo[3:]
-            #     item['date-time']     = date_time
-            #     item['day-detail']    = day_detail
-            # except KeyError:
-            #     pass
+            # specific to weekend forecast markup
+            try:
+                dateinfo              = item['weather-cell']
+                date_time, day_detail = dateinfo[:3], dateinfo[3:]
+                item['date-time']     = date_time
+                item['day-detail']    = day_detail
+            except KeyError:
+                pass
 
             day_forecast = Forecast(
                 self._unit_converter.convert(item['temp']),
